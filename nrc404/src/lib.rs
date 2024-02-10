@@ -3,7 +3,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue, StorageUsage, Gas};
+use near_sdk::{env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue, StorageUsage, Gas, require};
 
 use crate::internal::*;
 pub use crate::metadata::*;
@@ -64,6 +64,7 @@ pub struct Contract {
 
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
+    pub mediadata: LazyOption<NFTMediaData>,
 
     // pub ft: FungibleToken,
 
@@ -99,6 +100,7 @@ pub enum StorageKey {
     FTToken,
     Accounts,
     Metadata,
+    NFTMediaData,
 }
 
 #[near_bindgen]
@@ -132,9 +134,9 @@ impl Contract {
         the owner_id.
     */
     #[init]
-    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, total_supply: U128) -> Self {
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, mediadata: NFTMediaData, total_supply: U128) -> Self {
         // check metadata
-        Contract::internal_check_contract_meta_data(&metadata);
+        Contract::internal_check_contract_meta_data(&metadata, &mediadata);
 
         //create a variable of type Self with all the fields initialized.
         let mut contract = Self {
@@ -150,6 +152,10 @@ impl Contract {
             metadata: LazyOption::new(
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                 Some(&metadata),
+            ),
+            mediadata: LazyOption::new(
+                StorageKey::NFTMediaData.try_to_vec().unwrap(),
+                Some(&mediadata),
             ),
             next_nft_id: 0,
             // Set the total supply
@@ -177,7 +183,15 @@ impl Contract {
         //return the Contract object
         contract
     }
+
+    // pub fn update_media(&mut self, metadata: NFTContractMetadata) {
+    //     require!(env::predecessor_account_id() == self.owner_id);
+    //     self.metadata = LazyOption::new(
+    //         StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
+    //         Some(&metadata),
+    //     );
+    // }
 }
 
-// #[cfg(test)]
-// mod tests;
+#[cfg(test)]
+mod tests;

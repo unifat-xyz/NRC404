@@ -4,12 +4,14 @@ use sha2::{Sha256, Digest};
 
 impl Contract {
 
-    pub(crate) fn internal_check_contract_meta_data(metadata: &NFTContractMetadata) {
+    pub(crate) fn internal_check_contract_meta_data(metadata: &NFTContractMetadata, mediadata: &NFTMediaData) {
         if !metadata.enable_random_level {
+            require!(1 == (mediadata.level_medias.clone().len() as u8), INVALID_LEVEL_INITIAL);
             return;
         }
         require!(metadata.level_probability.is_some(), INVALID_LEVEL_INITIAL);
         require!(metadata.max_level == (metadata.level_probability.clone().unwrap().len() as u8), INVALID_LEVEL_INITIAL);
+        require!(metadata.max_level == (mediadata.level_medias.clone().len() as u8), INVALID_LEVEL_INITIAL);
         let mut total_probability = 0 as u16;
         for probability in metadata.level_probability.clone().unwrap() {
             total_probability += probability;
@@ -43,11 +45,11 @@ impl Contract {
             for token_id in level_token_ids.iter() {
                 need_del_token_id.push(token_id.clone());
                 need_del_token_level.push(i);
-                if need_amount >= decimal_int {
+                if need_amount > decimal_int {
                     need_amount -= decimal_int;
-                } else {
+                } else if need_amount <= decimal_int {
                     need_amount = 0;
-                    break;
+                    break
                 }
             }
             if need_amount == 0 {
@@ -91,9 +93,11 @@ impl Contract {
             if self.internal_get_remaining_gas() < MAX_RESERVED_WRAP_GAS.0 {
                 break;
             }
+            let level = self.internal_get_new_level(account_id, &metadata);
             let metadata = TokenMetadata {
-                level: self.internal_get_new_level(account_id, &metadata), title: None, description: None,
-                media: None, media_hash: None, copies: None, issued_at: Some(env::block_timestamp_ms()), expires_at: None,
+                level, title: None, description: None,
+                media: None,
+                media_hash: None, copies: None, issued_at: Some(env::block_timestamp_ms()), expires_at: None,
                 starts_at: None, updated_at: Some(env::block_timestamp_ms()), extra: None, reference: None, reference_hash: None,
             };
             self.internal_mint(account_id.clone(), metadata, account_id.clone(), None);
@@ -125,6 +129,14 @@ impl Contract {
             }
         }
         return DEFAULT_LEVEL;
+    }
+
+    pub(crate) fn internal_get_nft_media(&self, metadata: &NFTContractMetadata, mediadata: &NFTMediaData, metadata_token: &TokenMetadata) -> Option<String> {
+        let level_medias = mediadata.level_medias.clone();
+        if !metadata.enable_random_level {
+            return Some(level_medias[0].clone());
+        }
+        return Some(level_medias[(metadata_token.level - 1) as usize].clone());
     }
 
     pub(crate) fn internal_mint(&mut self, operator: AccountId, metadata: TokenMetadata, receiver_id: AccountId, perpetual_royalties: Option<HashMap<AccountId, u32>>) {

@@ -24,6 +24,12 @@ pub struct NFTContractMetadata {
     pub level_probability: Option<Vec<u16>>,
 }
 
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct NFTMediaData {
+    pub level_medias: Vec<String>,
+}
+
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct TokenMetadata {
@@ -81,19 +87,3 @@ impl NonFungibleTokenMetadata for Contract {
         self.metadata.get().unwrap()
     }
 }
-
-// #[near_bindgen]
-// impl FungibleTokenMetadataProvider for Contract {
-//     fn ft_metadata(&self) -> FungibleTokenMetadata {
-//         let meta_data = self.metadata.get().unwrap();
-//         FungibleTokenMetadata {
-//             spec: meta_data.ft_spec,
-//             name: meta_data.name,
-//             symbol: meta_data.symbol,
-//             icon: meta_data.icon,
-//             reference: meta_data.reference,
-//             reference_hash: meta_data.reference_hash,
-//             decimals: meta_data.decimals,
-//         }
-//     }
-// }
