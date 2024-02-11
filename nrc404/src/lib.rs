@@ -18,6 +18,7 @@ pub use crate::nep141_ft_internal::*;
 pub use crate::nep141_metadata::*;
 pub use crate::nep141_storage::*;
 pub use crate::nrc404_internal::*;
+pub use crate::owner::*;
 
 mod internal;
 mod approval;
@@ -33,6 +34,7 @@ mod nep141_ft_internal;
 mod nep141_metadata;
 mod nep141_storage;
 mod nrc404_internal;
+mod owner;
 
 /// This spec can be treated like a version of the standard.
 pub const NFT_METADATA_SPEC: &str = "1.0.0";
@@ -50,6 +52,8 @@ pub const MAX_RESERVED_WRAP_GAS: Gas = Gas(Gas::ONE_TERA.0 * 5);
 pub struct Contract {
     //contract owner
     pub owner_id: AccountId,
+    //contract operator
+    pub operator: AccountId,
 
     //keeps track of all the token IDs for a given account
     pub tokens_per_owner: LookupMap<AccountId, UnorderedSet<TokenId>>,
@@ -78,9 +82,6 @@ pub struct Contract {
 
     /// The bytes for the largest possible account ID that can be registered on the contract
     pub bytes_for_longest_account_id: StorageUsage,
-
-    // /// Metadata for the contract itself
-    // pub metadata: LazyOption<FungibleTokenMetadata>,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -107,29 +108,6 @@ pub enum StorageKey {
 impl Contract {
     /*
         initialization function (can only be called once).
-        this initializes the contract with default metadata so the
-        user doesn't have to manually type metadata.
-    */
-    // #[init]
-    // pub fn new_default_meta(owner_id: AccountId) -> Self {
-    //     //calls the other function "new: with some default metadata and the owner_id passed in
-    //     Self::new(
-    //         owner_id,
-    //         NFTContractMetadata {
-    //             spec: "nft-1.0.0".to_string(),
-    //             name: "NFT Tutorial Contract".to_string(),
-    //             symbol: "GOTEAM".to_string(),
-    //             decimals: 0,
-    //             icon: None,
-    //             base_uri: None,
-    //             reference: None,
-    //             reference_hash: None,
-    //         },
-    //     )
-    // }
-
-    /*
-        initialization function (can only be called once).
         this initializes the contract with metadata that was passed in and
         the owner_id.
     */
@@ -149,6 +127,7 @@ impl Contract {
             ),
             //set the owner_id field equal to the passed in owner_id.
             owner_id: owner_id.clone(),
+            operator: owner_id.clone(),
             metadata: LazyOption::new(
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                 Some(&metadata),
