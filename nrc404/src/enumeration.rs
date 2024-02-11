@@ -16,9 +16,9 @@ impl Contract {
         //iterate through each token using an iterator
         self.token_metadata_by_id.keys()
             //skip to the index we specified in the start variable
-            .skip(start as usize) 
+            .skip(start as usize)
             //take the first "limit" elements in the vector. If we didn't specify a limit, use 50
-            .take(limit.unwrap_or(50) as usize) 
+            .take(limit.unwrap_or(50) as usize)
             //we'll map the token IDs which are strings into Json Tokens
             .map(|token_id| self.nft_token(token_id.clone()).unwrap())
             //since we turned the keys into an iterator, we need to turn it back into a vector to return
@@ -55,7 +55,7 @@ impl Contract {
         let tokens = if let Some(tokens_for_owner_set) = tokens_for_owner_set {
             tokens_for_owner_set
         } else {
-            //if there is no set of tokens, we'll simply return an empty vector. 
+            //if there is no set of tokens, we'll simply return an empty vector.
             return vec![];
         };
 
@@ -65,12 +65,16 @@ impl Contract {
         //iterate through the keys vector
         tokens.iter()
             //skip to the index we specified in the start variable
-            .skip(start as usize) 
+            .skip(start as usize)
             //take the first "limit" elements in the vector. If we didn't specify a limit, use 50
-            .take(limit.unwrap_or(50) as usize) 
+            .take(limit.unwrap_or(50) as usize)
             //we'll map the token IDs which are strings into Json Tokens
             .map(|token_id| self.nft_token(token_id.clone()).unwrap())
             //since we turned the keys into an iterator, we need to turn it back into a vector to return
             .collect()
+    }
+
+    pub fn query_protocol_fee(&self) -> U128 {
+        return U128::from(self.protocol_fee);
     }
 }

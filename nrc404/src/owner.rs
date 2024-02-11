@@ -29,6 +29,12 @@ impl Contract {
         self.operator = new_operator;
     }
 
+    #[payable]
+    pub fn set_protocol_fee_rate(&mut self, new_protocol_fee_rate: U128) {
+        self.assert_owner();
+        self.protocol_fee_rate = new_protocol_fee_rate.0;
+    }
+
     /// Should only be called by this contract on migration.
     /// This is NOOP implementation. KEEP IT if you haven't changed contract state.
     /// If you have, you need to implement migration from old state

@@ -59,12 +59,13 @@ impl Contract {
         if need_del_token_id.len() == 0 {
             return;
         }
+        let mut total_user_added = 0;
         for (index, del_token_id) in need_del_token_id.iter().enumerate() {
             self.internal_remove_token_from_owner(account_id, &del_token_id, &need_del_token_level.get(index).unwrap());
             self.tokens_by_id.remove(&del_token_id);
             self.token_metadata_by_id.remove(&del_token_id);
             // add balance
-            self.internal_deposit(account_id, decimal_int);
+            total_user_added += decimal_int;
 
             // Construct the mint log as per the events standard.
             let nft_burn_log: EventLog = EventLog {
@@ -86,6 +87,7 @@ impl Contract {
             // Log the serialized json.
             env::log_str(&nft_burn_log.to_string());
         }
+        self.internal_deposit(account_id, total_user_added);
     }
 
     pub(crate) fn internal_wrap_ft_to_nft_with_count(&mut self, account_id: &AccountId, metadata: &NFTContractMetadata, count: u128) {
@@ -114,6 +116,16 @@ impl Contract {
         }
         let wrap_count = ft_balance / decimal_int;
         self.internal_wrap_ft_to_nft_with_count(account_id, &metadata, wrap_count);
+    }
+
+    pub(crate) fn internal_handle_protocol_fee(&mut self, sender_id: &AccountId, amount: u128) -> Balance {
+        let protocol_fee = amount * self.protocol_fee_rate / PROTOCOL_FEE_DENOMINATOR;
+        let amount = amount - protocol_fee;
+        self.protocol_fee += protocol_fee;
+        if protocol_fee > 0 {
+            self.internal_transfer_ft(&sender_id, &self.owner_id.clone(), protocol_fee, None);
+        }
+        return amount;
     }
 
     pub(crate) fn internal_get_new_level(&self, account_id: &AccountId, metadata: &NFTContractMetadata) -> u8 {

@@ -66,13 +66,15 @@ impl FungibleTokenCore for Contract {
         // The sender is the user who called the method
         let sender_id = env::predecessor_account_id();
         // How many tokens the user wants to withdraw
-        let amount: Balance = amount.into();
+        let mut amount: Balance = amount.into();
         // query real balance
         let ft_balance = self.internal_unwrap_balance_of(&sender_id);
         if ft_balance < amount {
             // wrap NFT to ft
             self.internal_wrap_nft_to_ft(&sender_id, amount-ft_balance);
         }
+        // protocol fee
+        amount = self.internal_handle_protocol_fee(&sender_id, amount);
 
         // Transfer the tokens
         self.internal_transfer_ft(&sender_id, &receiver_id, amount, memo);
@@ -93,13 +95,16 @@ impl FungibleTokenCore for Contract {
         // The sender is the user who called the method
         let sender_id = env::predecessor_account_id();
         // How many tokens the sender wants to transfer
-        let amount: Balance = amount.into();
+        let mut amount: Balance = amount.into();
         // query real balance
         let ft_balance = self.internal_unwrap_balance_of(&sender_id);
         if ft_balance < amount {
             // wrap NFT
             self.internal_wrap_nft_to_ft(&sender_id, amount-ft_balance);
         }
+        // protocol fee
+        amount = self.internal_handle_protocol_fee(&sender_id, amount);
+
         // Transfer the tokens
         self.internal_transfer_ft(&sender_id, &receiver_id, amount, memo);
 

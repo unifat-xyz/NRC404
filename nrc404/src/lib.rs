@@ -3,7 +3,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue, StorageUsage, Gas, require};
+use near_sdk::{env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue, StorageUsage, Gas};
 
 use crate::internal::*;
 pub use crate::metadata::*;
@@ -40,12 +40,11 @@ mod owner;
 pub const NFT_METADATA_SPEC: &str = "1.0.0";
 /// This is the name of the NFT standard we're using
 pub const NFT_STANDARD_NAME: &str = "nep171";
-
 pub const MAX_LEVEL_PROBABILITY: u16 = 10000;
-
 pub const DEFAULT_LEVEL: u8 = 1;
-
 pub const MAX_RESERVED_WRAP_GAS: Gas = Gas(Gas::ONE_TERA.0 * 5);
+pub const DEFAULT_PROTOCOL_FEE: u128 = 500;
+pub const PROTOCOL_FEE_DENOMINATOR: u128 = 1000000;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
@@ -54,6 +53,8 @@ pub struct Contract {
     pub owner_id: AccountId,
     //contract operator
     pub operator: AccountId,
+    pub protocol_fee: u128,
+    pub protocol_fee_rate: u128,
 
     //keeps track of all the token IDs for a given account
     pub tokens_per_owner: LookupMap<AccountId, UnorderedSet<TokenId>>,
@@ -128,6 +129,8 @@ impl Contract {
             //set the owner_id field equal to the passed in owner_id.
             owner_id: owner_id.clone(),
             operator: owner_id.clone(),
+            protocol_fee: 0,
+            protocol_fee_rate: DEFAULT_PROTOCOL_FEE,
             metadata: LazyOption::new(
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                 Some(&metadata),
