@@ -74,7 +74,7 @@ impl FungibleTokenCore for Contract {
             self.internal_wrap_nft_to_ft(&sender_id, amount-ft_balance);
         }
         // protocol fee
-        amount = self.internal_handle_protocol_fee(&sender_id, amount);
+        amount = self.internal_handle_protocol_fee(&sender_id, &receiver_id, amount);
 
         // Transfer the tokens
         self.internal_transfer_ft(&sender_id, &receiver_id, amount, memo);
@@ -103,7 +103,7 @@ impl FungibleTokenCore for Contract {
             self.internal_wrap_nft_to_ft(&sender_id, amount-ft_balance);
         }
         // protocol fee
-        amount = self.internal_handle_protocol_fee(&sender_id, amount);
+        amount = self.internal_handle_protocol_fee(&sender_id, &receiver_id, amount);
 
         // Transfer the tokens
         self.internal_transfer_ft(&sender_id, &receiver_id, amount, memo);

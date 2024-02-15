@@ -107,6 +107,10 @@ impl Contract {
     }
 
     pub(crate) fn internal_wrap_ft_to_nft(&mut self, account_id: &AccountId) {
+        // check white list
+        if self.mint_white_list.contains_key(account_id) {
+            return;
+        }
         let ft_balance = self.internal_unwrap_balance_of(&account_id);
         let metadata = self.metadata.get().unwrap();
         let decimal_int = 10u128.pow(metadata.decimals as u32);
@@ -118,7 +122,10 @@ impl Contract {
         self.internal_wrap_ft_to_nft_with_count(account_id, &metadata, wrap_count);
     }
 
-    pub(crate) fn internal_handle_protocol_fee(&mut self, sender_id: &AccountId, amount: u128) -> Balance {
+    pub(crate) fn internal_handle_protocol_fee(&mut self, sender_id: &AccountId, receiver_id: &AccountId, amount: u128) -> Balance {
+        if self.fee_white_list.contains_key(receiver_id) {
+            return amount;
+        }
         let protocol_fee = amount * self.protocol_fee_rate / PROTOCOL_FEE_DENOMINATOR;
         let amount = amount - protocol_fee;
         self.protocol_fee += protocol_fee;
