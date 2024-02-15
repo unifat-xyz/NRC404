@@ -55,26 +55,8 @@ impl Contract {
     #[init(ignore_state)]
     #[private]
     pub fn migrate() -> Self {
-        let contract: OldContract = env::state_read().expect(CAN_NOT_READ_STATE);
-        // contract
-        Self {
-            owner_id: contract.owner_id,
-            operator: contract.operator,
-            protocol_fee: contract.protocol_fee,
-            protocol_fee_rate: contract.protocol_fee_rate,
-            tokens_per_owner: contract.tokens_per_owner,
-            level_tokens_per_owner: contract.level_tokens_per_owner,
-            tokens_by_id: contract.tokens_by_id,
-            token_metadata_by_id: contract.token_metadata_by_id,
-            metadata: contract.metadata,
-            mediadata: contract.mediadata,
-            next_nft_id: contract.next_nft_id,
-            accounts: contract.accounts,
-            total_supply: contract.total_supply,
-            bytes_for_longest_account_id: contract.bytes_for_longest_account_id,
-            mint_white_list: LookupMap::new(b"mint_white".to_vec()),
-            fee_white_list: LookupMap::new(b"fee_white".to_vec()),
-        }
+        let contract: Contract = env::state_read().expect(CAN_NOT_READ_STATE);
+        contract
     }
 }
 

@@ -90,45 +90,6 @@ pub struct Contract {
     pub fee_white_list: LookupMap<AccountId, bool>,
 }
 
-#[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
-pub struct OldContract {
-    //contract owner
-    pub owner_id: AccountId,
-    //contract operator
-    pub operator: AccountId,
-    pub protocol_fee: u128,
-    pub protocol_fee_rate: u128,
-
-    //keeps track of all the token IDs for a given account
-    pub tokens_per_owner: LookupMap<AccountId, UnorderedSet<TokenId>>,
-    /// level_tokens_per_owner[user][level] = tokenIds
-    pub level_tokens_per_owner: LookupMap<AccountId, LookupMap<u8, UnorderedSet<TokenId>>>,
-
-    //keeps track of the token struct for a given token ID
-    pub tokens_by_id: LookupMap<TokenId, Token>,
-
-    //keeps track of the token metadata for a given token ID
-    pub token_metadata_by_id: UnorderedMap<TokenId, TokenMetadata>,
-
-    //keeps track of the metadata for the contract
-    pub metadata: LazyOption<NFTContractMetadata>,
-    pub mediadata: LazyOption<NFTMediaData>,
-
-    // pub ft: FungibleToken,
-
-    pub next_nft_id: u128,
-
-    /// Keep track of each account's balances
-    pub accounts: LookupMap<AccountId, Balance>,
-
-    /// Total supply of all tokens.
-    pub total_supply: Balance,
-
-    /// The bytes for the largest possible account ID that can be registered on the contract
-    pub bytes_for_longest_account_id: StorageUsage,
-
-}
-
 /// Helper structure for keys of the persistent collections.
 #[derive(BorshSerialize)]
 pub enum StorageKey {
