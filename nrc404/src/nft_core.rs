@@ -163,14 +163,28 @@ impl NonFungibleTokenCore for Contract {
         //if there is some token ID in the tokens_by_id collection
         if let Some(token) = self.tokens_by_id.get(&token_id) {
             //we'll get the metadata for that token
-            let mut metadata = self.token_metadata_by_id.get(&token_id).unwrap();
+            let metadata = self.token_metadata_by_id.get(&token_id).unwrap();
             let mediadata = self.mediadata.get().unwrap();
-            metadata.media = self.internal_get_nft_media(&self.metadata.get().unwrap(), &mediadata, &metadata);
+            let metadata_output = TokenMetadataOutput {
+                level: metadata.level,
+                title: Some(format!("DeltaBot: DeltaDisk - {}", token_id.to_string())),
+                description: Some(NFT_DESCRIPTION.to_string()),
+                media: self.internal_get_nft_media(&self.metadata.get().unwrap(), &mediadata, &metadata),
+                media_hash: None,
+                copies: None,
+                issued_at: None,
+                expires_at: None,
+                starts_at: None,
+                updated_at: None,
+                extra: None,
+                reference: None,
+                reference_hash: None,
+            };
             //we return the JsonToken (wrapped by Some since we return an option)
             Some(JsonToken {
                 token_id,
                 owner_id: token.owner_id,
-                metadata,
+                metadata: metadata_output,
                 approved_account_ids: token.approved_account_ids,
                 royalty: token.royalty,
             })

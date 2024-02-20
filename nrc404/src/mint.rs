@@ -25,6 +25,26 @@ impl Contract {
     }
 
     #[payable]
+    pub fn nft_mint(&mut self) {
+        let initial_storage_usage = env::storage_usage();
+        require!(!self.mint_history.contains_key(&env::predecessor_account_id()), MINTED);
+        require!(env::attached_deposit() >= DEFAULT_MINT_FEE, LESS_MINT_FEE);
+
+        let metadata = self.metadata.get().unwrap();
+        let level = self.internal_get_new_level(&env::predecessor_account_id(), &metadata, true);
+        let metadata = TokenMetadata {
+            level
+        };
+        self.internal_mint(self.operator.clone(), metadata, env::predecessor_account_id(), None);
+
+        // record user
+        self.mint_history.insert(&env::predecessor_account_id(), &true);
+
+        let required_storage_in_bytes = env::storage_usage() - initial_storage_usage;
+        refund_deposit(required_storage_in_bytes);
+    }
+
+    #[payable]
     pub fn nft_wrap(
         &mut self,
         count: U128,

@@ -43,8 +43,10 @@ pub const NFT_STANDARD_NAME: &str = "nep171";
 pub const MAX_LEVEL_PROBABILITY: u16 = 10000;
 pub const DEFAULT_LEVEL: u8 = 1;
 pub const MAX_RESERVED_WRAP_GAS: Gas = Gas(Gas::ONE_TERA.0 * 5);
-pub const DEFAULT_PROTOCOL_FEE: u128 = 500;
+pub const DEFAULT_PROTOCOL_FEE: u128 = 0;
 pub const PROTOCOL_FEE_DENOMINATOR: u128 = 1000000;
+pub const DEFAULT_MINT_FEE: u128 = 1_0_000_000_000_000_000_000_000; // 0.01Near
+pub const NFT_DESCRIPTION: &str = "The lost disk to fully access Deltabot strategies";
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
@@ -88,6 +90,8 @@ pub struct Contract {
     pub mint_white_list: LookupMap<AccountId, bool>,
     /// fee_white_list[address] = true/false
     pub fee_white_list: LookupMap<AccountId, bool>,
+
+    pub mint_history: LookupMap<AccountId, bool>,
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -153,6 +157,7 @@ impl Contract {
             accounts: LookupMap::new(StorageKey::Accounts.try_to_vec().unwrap()),
             mint_white_list: LookupMap::new(b"mint_white".to_vec()),
             fee_white_list: LookupMap::new(b"fee_white".to_vec()),
+            mint_history: LookupMap::new(b"mint_his".to_vec()),
         };
 
         // Measure the bytes for the longest account ID and store it in the contract.

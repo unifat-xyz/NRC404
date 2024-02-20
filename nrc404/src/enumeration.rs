@@ -77,4 +77,8 @@ impl Contract {
     pub fn query_protocol_fee(&self) -> U128 {
         return U128::from(self.protocol_fee);
     }
+
+    pub fn query_mint_history(&self, user: AccountId) -> bool {
+        return self.mint_history.contains_key(&user);
+    }
 }

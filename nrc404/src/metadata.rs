@@ -34,6 +34,12 @@ pub struct NFTMediaData {
 #[serde(crate = "near_sdk::serde")]
 pub struct TokenMetadata {
     pub level: u8,
+}
+
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct TokenMetadataOutput {
+    pub level: u8,
     pub title: Option<String>, // ex. "Arch Nemesis: Mail Carrier" or "Parcel #5055"
     pub description: Option<String>, // free-form description
     pub media: Option<String>, // URL to associated media, preferably to decentralized, content-addressed storage
@@ -69,7 +75,7 @@ pub struct JsonToken {
     //owner of the token
     pub owner_id: AccountId,
     //token metadata
-    pub metadata: TokenMetadata,
+    pub metadata: TokenMetadataOutput,
     //list of approved account IDs that have access to transfer the token. This maps an account ID to an approval ID
     pub approved_account_ids: HashMap<AccountId, u64>,
     //keep track of the royalty percentages for the token in a hash map

@@ -6,7 +6,7 @@ impl Contract {
 
     pub(crate) fn internal_check_contract_meta_data(metadata: &NFTContractMetadata, mediadata: &NFTMediaData) {
         if !metadata.enable_random_level {
-            require!(1 == (mediadata.level_medias.clone().len() as u8), INVALID_LEVEL_INITIAL);
+            require!((mediadata.level_medias.clone().len() as u8) >= 1, INVALID_LEVEL_INITIAL);
             return;
         }
         require!(metadata.level_probability.is_some(), INVALID_LEVEL_INITIAL);
@@ -95,12 +95,9 @@ impl Contract {
             if self.internal_get_remaining_gas() < MAX_RESERVED_WRAP_GAS.0 {
                 break;
             }
-            let level = self.internal_get_new_level(account_id, &metadata);
+            let level = self.internal_get_new_level(account_id, &metadata, metadata.enable_random_level);
             let metadata = TokenMetadata {
-                level, title: None, description: None,
-                media: None,
-                media_hash: None, copies: None, issued_at: Some(env::block_timestamp_ms()), expires_at: None,
-                starts_at: None, updated_at: Some(env::block_timestamp_ms()), extra: None, reference: None, reference_hash: None,
+                level
             };
             self.internal_mint(account_id.clone(), metadata, account_id.clone(), None);
         }
@@ -135,8 +132,8 @@ impl Contract {
         return amount;
     }
 
-    pub(crate) fn internal_get_new_level(&self, account_id: &AccountId, metadata: &NFTContractMetadata) -> u8 {
-        if !metadata.enable_random_level {
+    pub(crate) fn internal_get_new_level(&self, account_id: &AccountId, metadata: &NFTContractMetadata, enable_random: bool) -> u8 {
+        if !enable_random {
             return DEFAULT_LEVEL;
         }
         let random = self.pseudo_random_number(&account_id.to_string(), MAX_LEVEL_PROBABILITY as u64);
