@@ -5,10 +5,10 @@ use sha2::{Sha256, Digest};
 impl Contract {
 
     pub(crate) fn internal_check_contract_meta_data(metadata: &NFTContractMetadata, mediadata: &NFTMediaData) {
-        if !metadata.enable_random_level {
-            require!((mediadata.level_medias.clone().len() as u8) >= 1, INVALID_LEVEL_INITIAL);
-            return;
-        }
+        // if !metadata.enable_random_level {
+        //     require!((mediadata.level_medias.clone().len() as u8) >= 1, INVALID_LEVEL_INITIAL);
+        //     return;
+        // }
         require!(metadata.level_probability.is_some(), INVALID_LEVEL_INITIAL);
         require!(metadata.max_level == (metadata.level_probability.clone().unwrap().len() as u8), INVALID_LEVEL_INITIAL);
         require!(metadata.max_level == (mediadata.level_medias.clone().len() as u8), INVALID_LEVEL_INITIAL);
@@ -149,9 +149,9 @@ impl Contract {
 
     pub(crate) fn internal_get_nft_media(&self, metadata: &NFTContractMetadata, mediadata: &NFTMediaData, metadata_token: &TokenMetadata) -> Option<String> {
         let level_medias = mediadata.level_medias.clone();
-        if !metadata.enable_random_level {
-            return Some(level_medias[0].clone());
-        }
+        // if !metadata.enable_random_level {
+        //     return Some(level_medias[0].clone());
+        // }
         return Some(level_medias[(metadata_token.level - 1) as usize].clone());
     }
 
