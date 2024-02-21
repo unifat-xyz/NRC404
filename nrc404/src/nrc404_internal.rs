@@ -95,7 +95,8 @@ impl Contract {
             if self.internal_get_remaining_gas() < MAX_RESERVED_WRAP_GAS.0 {
                 break;
             }
-            let level = self.internal_get_new_level(account_id, &metadata, metadata.enable_random_level);
+            // let level = self.internal_get_new_level(account_id, &metadata, metadata.enable_random_level);
+            let level = self.internal_get_new_level(account_id, &metadata, true);
             let metadata = TokenMetadata {
                 level
             };
