@@ -90,26 +90,27 @@ impl Contract {
         self.internal_deposit(account_id, total_user_added);
     }
 
-    pub(crate) fn internal_wrap_ft_to_nft_with_count(&mut self, account_id: &AccountId, metadata: &NFTContractMetadata, count: u128) {
+    pub(crate) fn internal_wrap_ft_to_nft_with_count(&mut self, sender_id: &AccountId, receiver_id: &AccountId, metadata: &NFTContractMetadata, count: u128) {
         for _ in 0..count {
             if self.internal_get_remaining_gas() < MAX_RESERVED_WRAP_GAS.0 {
                 break;
             }
-            // let level = self.internal_get_new_level(account_id, &metadata, metadata.enable_random_level);
-            let level = self.internal_get_new_level(account_id, &metadata, true);
+            // let level = self.internal_get_new_level(receiver_id, &metadata, metadata.enable_random_level);
+            // let level = self.internal_get_new_level(receiver_id, &metadata, self.mint_white_list.contains_key(sender_id));
+            let level = self.internal_get_new_level(receiver_id, &metadata, false);
             let metadata = TokenMetadata {
                 level
             };
-            self.internal_mint(account_id.clone(), metadata, account_id.clone(), None);
+            self.internal_mint(receiver_id.clone(), metadata, receiver_id.clone(), None);
         }
     }
 
-    pub(crate) fn internal_wrap_ft_to_nft(&mut self, account_id: &AccountId) {
+    pub(crate) fn internal_wrap_ft_to_nft(&mut self, sender_id: &AccountId, receiver_id: &AccountId) {
         // check white list
-        if self.mint_white_list.contains_key(account_id) {
+        if self.mint_white_list.contains_key(receiver_id) {
             return;
         }
-        let ft_balance = self.internal_unwrap_balance_of(&account_id);
+        let ft_balance = self.internal_unwrap_balance_of(&receiver_id);
         let metadata = self.metadata.get().unwrap();
         let decimal_int = 10u128.pow(metadata.decimals as u32);
         if ft_balance < decimal_int {
@@ -117,7 +118,7 @@ impl Contract {
             return;
         }
         let wrap_count = ft_balance / decimal_int;
-        self.internal_wrap_ft_to_nft_with_count(account_id, &metadata, wrap_count);
+        self.internal_wrap_ft_to_nft_with_count(sender_id, receiver_id, &metadata, wrap_count);
     }
 
     pub(crate) fn internal_handle_protocol_fee(&mut self, sender_id: &AccountId, receiver_id: &AccountId, amount: u128) -> Balance {

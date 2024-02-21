@@ -79,7 +79,7 @@ impl FungibleTokenCore for Contract {
         // Transfer the tokens
         self.internal_transfer_ft(&sender_id, &receiver_id, amount, memo);
         // wrap ft to NFT
-        self.internal_wrap_ft_to_nft(&receiver_id);
+        self.internal_wrap_ft_to_nft(&sender_id, &receiver_id);
     }
 
     #[payable]
@@ -240,15 +240,13 @@ impl Contract {
                     .unwrap_or_else(|| env::panic_str("Total supply overflow"));
 
                 // wrap ft to nft
-                self.internal_wrap_ft_to_nft(&receiver_id);
-                self.internal_wrap_ft_to_nft(&sender_id);
+                self.internal_wrap_ft_to_nft(&sender_id, &receiver_id);
                 return used_amount.into();
             }
         }
 
         // wrap ft to nft
-        self.internal_wrap_ft_to_nft(&receiver_id);
-        self.internal_wrap_ft_to_nft(&sender_id);
+        self.internal_wrap_ft_to_nft(&sender_id, &receiver_id);
         // If the unused amount is 0, return the original amount.
         amount.into()
     }

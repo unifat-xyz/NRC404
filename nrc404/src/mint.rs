@@ -53,6 +53,6 @@ impl Contract {
         let metadata = self.metadata.get().unwrap();
         let decimal_int = 10u128.pow(metadata.decimals as u32);
         require!(ft_balance / decimal_int >= count.0, LESS_BALANCE);
-        self.internal_wrap_ft_to_nft_with_count(&env::predecessor_account_id(), &metadata, count.0);
+        self.internal_wrap_ft_to_nft_with_count(&env::predecessor_account_id(), &env::predecessor_account_id(), &metadata, count.0);
     }
 }
