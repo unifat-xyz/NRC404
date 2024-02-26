@@ -47,6 +47,7 @@ pub const DEFAULT_PROTOCOL_FEE: u128 = 0;
 pub const PROTOCOL_FEE_DENOMINATOR: u128 = 1000000;
 pub const DEFAULT_MINT_FEE: u128 = 1_5_000_000_000_000_000_000_000; // 0.01Near
 pub const NFT_DESCRIPTION: &str = "The lost disk to fully access Deltabot strategies";
+pub const DISABLE_FT: bool = true;
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]

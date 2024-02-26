@@ -1,4 +1,4 @@
-use near_sdk::{Gas, ext_contract, PromiseOrValue, assert_one_yocto, PromiseResult};
+use near_sdk::{Gas, ext_contract, PromiseOrValue, assert_one_yocto, PromiseResult, require};
 
 use crate::*;
 
@@ -63,6 +63,7 @@ impl FungibleTokenCore for Contract {
     fn ft_transfer(&mut self, receiver_id: AccountId, amount: U128, memo: Option<String>) {
         // Assert that the user attached exactly 1 yoctoNEAR. This is for security and so that the user will be required to sign with a FAK.
         assert_one_yocto();
+        require!(!DISABLE_FT, FT_DISABLED);
         // The sender is the user who called the method
         let sender_id = env::predecessor_account_id();
         // How many tokens the user wants to withdraw
@@ -90,6 +91,7 @@ impl FungibleTokenCore for Contract {
         memo: Option<String>,
         msg: String,
     ) -> PromiseOrValue<U128> {
+        require!(!DISABLE_FT, FT_DISABLED);
         // Assert that the user attached exactly 1 yoctoNEAR. This is for security and so that the user will be required to sign with a FAK.
         assert_one_yocto();
         // The sender is the user who called the method
