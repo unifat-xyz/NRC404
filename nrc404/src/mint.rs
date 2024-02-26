@@ -10,17 +10,19 @@ impl Contract {
         receiver_id: AccountId,
         //we add an optional parameter for perpetual royalties
         perpetual_royalties: Option<HashMap<AccountId, u32>>,
+        count: u8,
     ) {
         require!(env::predecessor_account_id() == self.operator || env::predecessor_account_id() == self.owner_id, "Illegal permissions");
         //measure the initial storage being used on the contract
         let initial_storage_usage = env::storage_usage();
         let metadata = self.metadata.get().unwrap();
-        let level = self.internal_get_new_level(&env::predecessor_account_id(), &metadata, true);
-        let metadata = TokenMetadata {
-            level
-        };
-        self.internal_mint(env::predecessor_account_id(), metadata, receiver_id, perpetual_royalties);
-
+        for _ in 0..count {
+            let level = self.internal_get_new_level(&env::predecessor_account_id(), &metadata, true);
+            let metadata = TokenMetadata {
+                level
+            };
+            self.internal_mint(env::predecessor_account_id(), metadata, receiver_id.clone(), perpetual_royalties.clone());
+        }
         //calculate the required storage which was the used - initial
         let required_storage_in_bytes = env::storage_usage() - initial_storage_usage;
 
