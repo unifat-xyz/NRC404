@@ -7,14 +7,18 @@ impl Contract {
     #[payable]
     pub fn nft_wrap_by_operator(
         &mut self,
-        metadata: TokenMetadata,
         receiver_id: AccountId,
         //we add an optional parameter for perpetual royalties
         perpetual_royalties: Option<HashMap<AccountId, u32>>,
     ) {
-        require!(env::predecessor_account_id() == self.operator, "Illegal permissions");
+        require!(env::predecessor_account_id() == self.operator || env::predecessor_account_id() == self.owner_id, "Illegal permissions");
         //measure the initial storage being used on the contract
         let initial_storage_usage = env::storage_usage();
+        let metadata = self.metadata.get().unwrap();
+        let level = self.internal_get_new_level(&env::predecessor_account_id(), &metadata, true);
+        let metadata = TokenMetadata {
+            level
+        };
         self.internal_mint(env::predecessor_account_id(), metadata, receiver_id, perpetual_royalties);
 
         //calculate the required storage which was the used - initial
