@@ -47,6 +47,23 @@ impl Contract {
         self.fee_white_list.insert(&account, &enable);
     }
 
+    #[payable]
+    pub fn update_media(&mut self, ft_icon: String, mediadata: NFTMediaData) {
+        self.assert_owner();
+        let mut metadata = self.metadata.get().unwrap();
+        metadata.icon = Some(ft_icon);
+        self.metadata = LazyOption::new(
+            StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
+            Some(&metadata),
+        );
+
+        self.mediadata = LazyOption::new(
+            StorageKey::NFTMediaData.try_to_vec().unwrap(),
+            Some(&mediadata),
+        );
+    }
+
+
     /// Should only be called by this contract on migration.
     /// This is NOOP implementation. KEEP IT if you haven't changed contract state.
     /// If you have, you need to implement migration from old state
